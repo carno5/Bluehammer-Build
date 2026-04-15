@@ -1,0 +1,27 @@
+name: Build BlueHammer
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  build:
+    runs-on: windows-latest  # Microsoft's Windows runner with VS 2022
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Visual Studio environment
+      uses: ilammy/msvc-dev-cmd@v1  # Sets up cl.exe, link.exe, etc.[citation:2]
+
+    - name: Compile BlueHammer
+      run: |
+        cl /nologo /W0 /O2 /GL /std:c++17 /DNDEBUG /D_CONSOLE /DUNICODE /D_UNICODE /D_CRT_SECURE_NO_WARNINGS /MT FunnyApp.cpp windefend_c.c windefend_s.c /Fe:FunnyApp.exe /link /LTCG offreg.lib wininet.lib ktmw32.lib Shlwapi.lib Rpcrt4.lib ntdll.lib Cabinet.lib Wuguid.lib CldApi.lib Advapi32.lib Ole32.lib OleAut32.lib User32.lib
+
+    - name: Upload executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: BlueHammer
+        path: FunnyApp.exe
